@@ -3,28 +3,24 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
-<title>Flappy (mobile full screen) — happy bdy muskan</title>
-<meta name="theme-color" content="#70c5ce" />
+<title>Flappy (mobile only)</title>
 <style>
-  :root{--bg-top:#9ee0e7;--bg-bot:#70c5ce;--ground:#d3a35a;--accent:#2b8a78;--text:#fff}
+  :root{--bg-top:#9ee0e7;--bg-bot:#70c5ce;--ground:#d3a35a;--accent:#2b8a78;--text:#ffffff}
   html,body{height:100%;margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:linear-gradient(var(--bg-top),var(--bg-bot));-webkit-tap-highlight-color:transparent;overflow:hidden}
-  .screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;touch-action:none}
-  /* canvas will be positioned absolutely and centered; we size it in JS so it covers the viewport */
-  #game { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); border-radius:0; box-shadow:none; touch-action:manipulation; display:block; }
-  /* top UI */
-  .top-ui{position:fixed;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:none;z-index:30}
+  .screen{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;position:relative;background:transparent;overflow:hidden}
+  #game{width:min(480px,96vw);height:calc((min(480px,96vw)*640)/480);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,0.18);touch-action:manipulation;display:block;-webkit-user-select:none;user-select:none}
+  .top-ui{position:absolute;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
   .top-ui .group{pointer-events:auto;display:flex;gap:8px;align-items:center}
   button.btn{background:var(--accent);color:var(--text);border:0;padding:10px 14px;border-radius:12px;font-weight:800;font-size:16px;box-shadow:0 8px 16px rgba(43,138,120,0.18);touch-action:manipulation}
   button.small{background:rgba(255,255,255,0.95);color:#222;border-radius:10px;padding:8px 10px;font-weight:700;box-shadow:0 6px 12px rgba(0,0,0,0.06)}
-  /* flap button (thumb reachable) */
-  .flap-btn{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;pointer-events:auto;background:linear-gradient(180deg,#ffcf33,#ffb400);border-radius:999px;padding:16px 28px;font-weight:900;box-shadow:0 16px 30px rgba(0,0,0,0.22);font-size:18px;border:0;z-index:40;touch-action:manipulation}
-  .score-pill{position:fixed;top:18px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.38);color:#fff;padding:8px 12px;border-radius:999px;font-weight:800;font-size:16px;pointer-events:none;z-index:30}
-  .celebration{position:fixed;left:50%;top:90px;transform:translateX(-50%);pointer-events:none;font-weight:900;font-size:22px;color:#fff;text-shadow:0 8px 18px rgba(0,0,0,0.3);padding:8px 14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));display:none;z-index:50}
-  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;background:rgba(0,0,0,0.72);color:#fff;padding:10px 14px;border-radius:999px;font-weight:700;font-size:15px;display:none;z-index:60}
+  .flap-btn{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);pointer-events:auto;background:linear-gradient(180deg,#ffcf33,#ffb400);border-radius:999px;padding:16px 28px;font-weight:900;box-shadow:0 16px 30px rgba(0,0,0,0.22);font-size:20px;border:0;touch-action:manipulation}
+  .score-pill{position:absolute;top:18px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.38);color:#fff;padding:8px 12px;border-radius:999px;font-weight:800;font-size:18px;pointer-events:none}
+  .celebration{position:absolute;top:100px;left:50%;transform:translateX(-50%);pointer-events:none;font-weight:900;font-size:22px;color:#fff;text-shadow:0 8px 18px rgba(0,0,0,0.3);padding:8px 14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));display:none;z-index:10}
+  .toast{position:absolute;left:50%;transform:translateX(-50%);bottom:28px;background:rgba(0,0,0,0.72);color:#fff;padding:10px 14px;border-radius:999px;font-weight:700;font-size:16px;display:none;z-index:11}
   .desktop-block{display:none;position:fixed;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.75));color:#fff;z-index:9999;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:18px}
   .desktop-block .box{max-width:420px}
-  @media (hover:hover) and (pointer:fine),(min-width:800px){.desktop-block{display:flex}}
-  @media (max-width:360px){ .celebration{font-size:18px;top:78px} .flap-btn{padding:14px 20px;font-size:17px} }
+  @media (hover:hover) and (pointer:fine), (min-width:800px){.desktop-block{display:flex}}
+  @media (max-width:380px){.flap-btn{padding:14px 20px;font-size:18px;bottom:14px}.celebration{font-size:18px;top:84px}}
 </style>
 </head>
 <body>
@@ -36,12 +32,12 @@
       <div class="group"><button id="muteBtn" class="small">Mute</button></div>
     </div>
 
-    <div class="score-pill" id="scoreP">Score: <span id="scoreLabel">0</span></div>
+    <div class="score-pill" id="scoreP">Score (3) u see special msg :  <span id="scoreLabel">0</span></div>
 
-    <button id="flapBtn" class="flap-btn" aria-label="Flap">FLAP</button>
+    <button id="flapBtn" class="flap-btn" aria-label="Flap">SCORE = 3 SHOW A SPECIAL MESSAGE </button>
 
     <div id="celebration" class="celebration">😍 happy bdy muskan 😍</div>
-    <div id="toast" class="toast">Score 3 — happy bdy muskan</div>
+    <div id="toast" class="toast">Score 3 — and u see the special message </div>
 
     <div class="desktop-block" id="desktopBlock" role="dialog" aria-modal="true" aria-label="Mobile only">
       <div class="box">
@@ -55,20 +51,18 @@
 
 <script>
 (() => {
-  // ===== CONFIG =====
-  const DEFAULT_BIRD_PATH  = "assets/qw.png";
-  const DEFAULT_MUSIC_PATH = "assets/dd.mp3";
+  // ===== CONFIG: local asset paths (edit if necessary) =====
+  const DEFAULT_BIRD_PATH  = "assets/qw.png";   // change as needed
+  const DEFAULT_MUSIC_PATH = "assets/dd.mp3";   // change as needed
 
-  // virtual game resolution (logic runs in these coordinates)
-  const VIRTUAL_W = 480, VIRTUAL_H = 640;
-
-  // game constants (use virtual values)
+  // ===== GAME SETTINGS =====
+  const W = 480, H = 640;
   const GRAV = 0.5, FLAP = -9, PIPE_SPEED = 2.6, PIPE_WIDTH = 78, PIPE_GAP = 150;
   const PIPE_INTERVAL = 1500, BIRD_R = 16;
   const CELEB_TEXT = "😍 happy bdy muskan 😍", CELEB_DURATION = 2400;
   const TOAST_DURATION = 2200;
 
-  // ===== DOM =====
+  // ===== DOM & canvas scaling for DPR =====
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
   const flapBtn = document.getElementById('flapBtn');
@@ -79,55 +73,38 @@
   const toastEl = document.getElementById('toast');
   const desktopBlock = document.getElementById('desktopBlock');
 
-  // DPR & cover-scaling: compute scale so virtual area covers viewport (may crop)
-  function scaleCanvasToCover() {
+  function scaleCanvasForDPR() {
     const dpr = Math.max(1, window.devicePixelRatio || 1);
-
-    // scale factor (cover)
-    const scale = Math.max(window.innerWidth / VIRTUAL_W, window.innerHeight / VIRTUAL_H);
-
-    // physical drawing buffer size (virtual * dpr)
-    canvas.width = Math.round(VIRTUAL_W * dpr);
-    canvas.height = Math.round(VIRTUAL_H * dpr);
-
-    // CSS size of canvas: virtual * scale (this likely >= viewport; we'll center it)
-    const cssWidth  = Math.round(VIRTUAL_W * scale);
-    const cssHeight = Math.round(VIRTUAL_H * scale);
-
-    canvas.style.width  = cssWidth + "px";
-    canvas.style.height = cssHeight + "px";
-
-    // center the canvas exactly in viewport (absolute centering in CSS)
-    // set transform for drawing: scale by dpr * scale (maps virtual coords -> device pixels)
-    ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = Math.min(480, Math.round(window.innerWidth * 0.96)) + "px";
+    canvas.style.height = (parseFloat(canvas.style.width) * (H / W)) + "px";
+    ctx.setTransform(dpr,0,0,dpr,0,0);
   }
+  scaleCanvasForDPR();
+  window.addEventListener('resize', () => { scaleCanvasForDPR(); });
 
-  // initial scaling & on resize
-  scaleCanvasToCover();
-  window.addEventListener('resize', () => { scaleCanvasToCover(); });
-
-  // ===== game state (virtual coordinates) =====
+  // ===== game state =====
   let last = 0, spawn = 0, pipes = [], score = 0, showCeleb = false, celebTimer = 0;
   let muted = false, celebratedAt3 = false, userInteracted = false;
   let birdAsset = null, birdScale = 1, useAsset = false;
-
-  const bird = { x: 100, y: VIRTUAL_H/2, vy: 0, r: BIRD_R, alive: true };
+  const bird = { x: 100, y: H/2, vy: 0, r: BIRD_R, alive: true };
 
   // ===== utilities =====
   const randInt = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
   function reset(){
-    pipes = []; score = 0; scoreLabel.textContent = score; bird.y = VIRTUAL_H/2; bird.vy = 0; bird.alive = true;
+    pipes = []; score = 0; scoreLabel.textContent = score; bird.y = H/2; bird.vy = 0; bird.alive = true;
     spawn = 0; showCeleb = false; celebTimer = 0; celebratedAt3 = false; last = performance.now();
     celebrationEl.style.display = "none"; toastEl.style.display = "none";
   }
 
   class Pipe {
-    constructor(x){ this.x = x; this.w = PIPE_WIDTH; const m = 60; this.gapY = randInt(m+PIPE_GAP/2, VIRTUAL_H-m-PIPE_GAP/2); this.passed = false; }
+    constructor(x){ this.x = x; this.w = PIPE_WIDTH; const m = 60; this.gapY = randInt(m+PIPE_GAP/2, H-m-PIPE_GAP/2); this.passed = false; }
     update(dt){ this.x -= PIPE_SPEED * (dt / (1000/60)); }
     draw(ctx){
       ctx.fillStyle = "#2ea34a";
       ctx.fillRect(this.x, 0, this.w, this.gapY - PIPE_GAP/2);
-      ctx.fillRect(this.x, this.gapY + PIPE_GAP/2, this.w, VIRTUAL_H - (this.gapY + PIPE_GAP/2) - 80);
+      ctx.fillRect(this.x, this.gapY + PIPE_GAP/2, this.w, H - (this.gapY + PIPE_GAP/2) - 80);
       ctx.fillStyle = "rgba(0,0,0,0.06)";
       ctx.fillRect(this.x, this.gapY - 6 - PIPE_GAP/2, this.w, 6);
     }
@@ -135,7 +112,7 @@
     collides(b){
       const bx = b.x, by = b.y, r = b.r;
       const top = {x:this.x, y:0, w:this.w, h:this.gapY - PIPE_GAP/2};
-      const bottom = {x:this.x, y:this.gapY + PIPE_GAP/2, w:this.w, h:VIRTUAL_H - (this.gapY + PIPE_GAP/2) - 80};
+      const bottom = {x:this.x, y:this.gapY + PIPE_GAP/2, w:this.w, h:H - (this.gapY + PIPE_GAP/2) - 80};
       return circRect(bx,by,r,top) || circRect(bx,by,r,bottom);
     }
   }
@@ -158,6 +135,7 @@
       if(bgAudio && bgAudio.src && !muted) bgAudio.play().catch(()=>{});
     }
   }
+
   function flapAction(){
     onUserGesture();
     if(!bird.alive){ reset(); return; }
@@ -165,21 +143,15 @@
     playClick();
   }
 
-  // pointer/touch handlers (only touch/pointer on mobile)
+  // pointer/touch handlers
   canvas.addEventListener('pointerdown', (e) => { flapAction(); }, {passive:true});
   flapBtn.addEventListener('touchstart', (e) => { e.preventDefault(); flapAction(); }, {passive:false});
   flapBtn.addEventListener('mousedown', (e) => { e.preventDefault(); flapAction(); }, {passive:false});
 
   startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); onUserGesture(); reset(); }, {passive:false});
   startBtn.addEventListener('mousedown', (e) => { e.preventDefault(); onUserGesture(); reset(); }, {passive:false});
-
-  function toggleMute(){
-    muted = !muted;
-    muteBtn.textContent = muted ? "Unmute" : "Mute";
-    if(muted){ bgAudio && bgAudio.pause(); } else if(userInteracted){ bgAudio && bgAudio.play().catch(()=>{}); }
-  }
-  muteBtn.addEventListener('touchstart', (e) => { e.preventDefault(); toggleMute(); }, {passive:false});
-  muteBtn.addEventListener('mousedown', (e) => { e.preventDefault(); toggleMute(); }, {passive:false});
+  muteBtn.addEventListener('touchstart', (e) => { e.preventDefault(); muted = !muted; muteBtn.textContent = muted ? "Unmute" : "Mute"; if(muted) bgAudio && bgAudio.pause(); else if(userInteracted) bgAudio && bgAudio.play().catch(()=>{}); }, {passive:false});
+  muteBtn.addEventListener('mousedown', (e) => { e.preventDefault(); muted = !muted; muteBtn.textContent = muted ? "Unmute" : "Mute"; if(muted) bgAudio && bgAudio.pause(); else if(userInteracted) bgAudio && bgAudio.play().catch(()=>{}); }, {passive:false});
 
   function playClick(){ if(muted) return; try{ const Actx = window.AudioContext || window.webkitAudioContext; if(!Actx) return; const a = new Actx(); const o = a.createOscillator(), g = a.createGain(); o.type = "sine"; o.frequency.value = 1200; g.gain.value = 0.02; o.connect(g); g.connect(a.destination); const now = a.currentTime; g.gain.setValueAtTime(0.02, now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.06); o.start(now); o.stop(now + 0.07);} catch(e){} }
 
@@ -188,7 +160,7 @@
   bgAudio.loop = true; bgAudio.preload = "auto"; bgAudio.style.display = "none"; document.body.appendChild(bgAudio);
   bgAudio.addEventListener('error', () => { console.warn("Background audio failed to load from DEFAULT_MUSIC_PATH — check the path or server."); });
 
-  // ===== local asset loaders =====
+  // ===== local asset loaders (bird & music) =====
   function tryLoadLocalBird(){
     if(!DEFAULT_BIRD_PATH) return;
     const img = new Image();
@@ -198,21 +170,37 @@
     img.src = DEFAULT_BIRD_PATH + (DEFAULT_BIRD_PATH.indexOf('?') === -1 ? ('?cb=' + Date.now()) : '');
   }
   function tryLoadLocalMusic(){ if(!DEFAULT_MUSIC_PATH) return; bgAudio.src = DEFAULT_MUSIC_PATH; bgAudio.load(); bgAudio.addEventListener('canplay', ()=>{ console.log("Background music loaded from", DEFAULT_MUSIC_PATH); }, {once:true}); }
+
   tryLoadLocalBird(); tryLoadLocalMusic();
 
-  // ===== drawing helpers (virtual coords) =====
-  function drawGround(){ ctx.fillStyle = "#d3a35a"; ctx.fillRect(0, VIRTUAL_H-80, VIRTUAL_W, 80); }
+  // ===== drawing helpers =====
+  function drawGround(){ ctx.fillStyle = "#d3a35a"; ctx.fillRect(0, H-80, W, 80); }
   function drawBird(){ if(useAsset && birdAsset){ const w = birdAsset.width * birdScale, h = birdAsset.height * birdScale; ctx.drawImage(birdAsset, bird.x - w/2, bird.y - h/2, w, h); } else { ctx.beginPath(); ctx.fillStyle="#ffcc33"; ctx.arc(bird.x, bird.y, bird.r,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#333"; ctx.beginPath(); ctx.arc(bird.x+6, bird.y-4, 3,0,Math.PI*2); ctx.fill(); } }
-  function drawScore(){ ctx.fillStyle="#fff"; ctx.font="700 36px system-ui,Arial"; ctx.textAlign="center"; ctx.fillText(String(score), VIRTUAL_W/2, 68); }
+  function drawScore(){ ctx.fillStyle="#fff"; ctx.font="700 36px system-ui,Arial"; ctx.textAlign="center"; ctx.fillText(String(score), W/2, 68); }
 
-  // show/hide celebration DOM + toast
+  // show/hide DOM celebration element and toast
   function updateCelebrationVisibility(){
     if(showCeleb){
       celebrationEl.style.display = "block";
       toastEl.style.display = "block";
+      // play a short celebratory beep
       if(!muted){
-        try{ const Actx = window.AudioContext || window.webkitAudioContext; if(Actx){ const a = new Actx(); const o = a.createOscillator(); const g = a.createGain(); o.type='triangle'; o.frequency.value=880; g.gain.value=0.06; o.connect(g); g.connect(a.destination); const now=a.currentTime; g.gain.setValueAtTime(0.06, now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.28); o.start(now); o.stop(now + 0.28); } }catch(e){}
+        try{
+          const Actx = window.AudioContext || window.webkitAudioContext;
+          if(Actx){
+            const a = new Actx();
+            const o = a.createOscillator();
+            const g = a.createGain();
+            o.type = 'triangle'; o.frequency.value = 880; g.gain.value = 0.06;
+            o.connect(g); g.connect(a.destination);
+            const now = a.currentTime;
+            g.gain.setValueAtTime(0.06, now);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+            o.start(now); o.stop(now + 0.28);
+          }
+        }catch(e){}
       }
+      // auto-hide toast after TOAST_DURATION
       setTimeout(()=>{ toastEl.style.display = "none"; }, TOAST_DURATION);
     } else {
       celebrationEl.style.display = "none";
@@ -220,16 +208,16 @@
     }
   }
 
-  // ===== game loop (virtual time/coords) =====
+  // ===== game loop =====
   function update(now){
     const dt = now - last; last = now;
     if(bird.alive){
       bird.vy += GRAV; bird.y += bird.vy;
-      if(bird.y + bird.r >= VIRTUAL_H - 80){ bird.y = VIRTUAL_H - 80 - bird.r; bird.alive = false; }
+      if(bird.y + bird.r >= H - 80){ bird.y = H - 80 - bird.r; bird.alive = false; }
       if(bird.y - bird.r <= 0){ bird.y = bird.r; bird.vy = 0; }
 
       spawn += dt;
-      if(spawn >= PIPE_INTERVAL){ spawn = 0; pipes.push(new Pipe(VIRTUAL_W + 10)); }
+      if(spawn >= PIPE_INTERVAL){ spawn = 0; pipes.push(new Pipe(W + 10)); }
 
       for(const p of pipes){
         p.update(dt);
@@ -237,13 +225,13 @@
           p.passed = true;
           score++;
           scoreLabel.textContent = score;
-          // trigger celebration exactly when score becomes 3 (once)
+          // Trigger celebration exactly when score becomes 3 (only once)
           if(score === 3 && !celebratedAt3){
             celebratedAt3 = true;
             showCeleb = true;
             celebTimer = CELEB_DURATION;
             console.log(CELEB_TEXT);
-            onUserGesture();
+            onUserGesture(); // unlock audio
             updateCelebrationVisibility();
           }
         }
@@ -262,24 +250,21 @@
   }
 
   function render(){
-    // clear virtual area
-    ctx.clearRect(0,0,VIRTUAL_W,VIRTUAL_H);
-    // draw virtual gradient background
-    const g = ctx.createLinearGradient(0,0,0,VIRTUAL_H); g.addColorStop(0,"#9ee0e7"); g.addColorStop(1,"#70c5ce");
-    ctx.fillStyle = g; ctx.fillRect(0,0,VIRTUAL_W,VIRTUAL_H);
-
+    ctx.clearRect(0,0,W,H);
+    const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,"#9ee0e7"); g.addColorStop(1,"#70c5ce");
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
     for(const p of pipes) p.draw(ctx);
     drawGround(); drawBird(); drawScore();
-
     if(!bird.alive){
-      ctx.fillStyle="rgba(0,0,0,0.45)"; ctx.fillRect(0,0,VIRTUAL_W,VIRTUAL_H);
+      ctx.fillStyle="rgba(0,0,0,0.45)"; ctx.fillRect(0,0,W,H);
       ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="700 36px system-ui,Arial";
-      ctx.fillText("Game Over", VIRTUAL_W/2, VIRTUAL_H/2 - 6);
-      ctx.font="500 18px system-ui,Arial"; ctx.fillText("Tap Start to restart", VIRTUAL_W/2, VIRTUAL_H/2 + 28);
-    } else if(pipes.length === 0 && Math.abs(bird.y - VIRTUAL_H/2) < 40 && bird.vy === 0){
-      ctx.fillStyle="rgba(0,0,0,0.35)"; ctx.fillRect(0,0,VIRTUAL_W,VIRTUAL_H);
-      ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="700 28px system-ui,Arial"; ctx.fillText("Tap / FLAP to play", VIRTUAL_W/2, VIRTUAL_H/2 - 10);
-      ctx.font="500 16px system-ui,Arial"; ctx.fillText("Music starts on first tap", VIRTUAL_W/2, VIRTUAL_H/2 + 20);
+      ctx.fillText("Game Over", W/2, H/2 - 6);
+      ctx.font="500 18px system-ui,Arial"; ctx.fillText("Tap Start to restart", W/2, H/2 + 28);
+    } else if(pipes.length === 0 && Math.abs(bird.y - H/2) < 40 && bird.vy === 0){
+      ctx.fillStyle="rgba(0,0,0,0.35)"; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="700 28px system-ui,Arial";
+      ctx.fillText("Tap / FLAP to play", W/2, H/2 - 10);
+      ctx.font="500 16px system-ui,Arial"; ctx.fillText("Music starts on first tap", W/2, H/2 + 20);
     }
   }
 
@@ -295,10 +280,9 @@
   // accessibility & prevent scroll while interacting
   canvas.setAttribute('tabindex','0');
   canvas.addEventListener('touchstart', e => { e.preventDefault(); }, {passive:false});
-
-  // ---- helper: ensure canvas covers correctly on load (in case orientation already landscape) ----
-  setTimeout(() => scaleCanvasToCover(), 50);
 })();
 </script>
 </body>
 </html>
+
+
