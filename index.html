@@ -1,298 +1,1002 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="hi">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover" />
-<title>Flappy (mobile only) — happy bdy muskan</title>
-<style>
-  :root{--bg-top:#9ee0e7;--bg-bot:#70c5ce;--ground:#d3a35a;--accent:#2b8a78;--text:#ffffff}
-  html,body{height:100%;margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:linear-gradient(var(--bg-top),var(--bg-bot));-webkit-tap-highlight-color:transparent;overflow:hidden}
-  .screen{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;position:relative;background:transparent;overflow:hidden}
-  #game{width:min(480px,96vw);height:calc((min(480px,96vw)*640)/480);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,0.18);touch-action:manipulation;display:block;-webkit-user-select:none;user-select:none}
-  .top-ui{position:absolute;left:12px;right:12px;top:12px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
-  .top-ui .group{pointer-events:auto;display:flex;gap:8px;align-items:center}
-  button.btn{background:var(--accent);color:var(--text);border:0;padding:10px 14px;border-radius:12px;font-weight:800;font-size:16px;box-shadow:0 8px 16px rgba(43,138,120,0.18);touch-action:manipulation}
-  button.small{background:rgba(255,255,255,0.95);color:#222;border-radius:10px;padding:8px 10px;font-weight:700;box-shadow:0 6px 12px rgba(0,0,0,0.06)}
-  .flap-btn{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);pointer-events:auto;background:linear-gradient(180deg,#ffcf33,#ffb400);border-radius:999px;padding:16px 28px;font-weight:900;box-shadow:0 16px 30px rgba(0,0,0,0.22);font-size:20px;border:0;touch-action:manipulation}
-  .score-pill{position:absolute;top:18px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.38);color:#fff;padding:8px 12px;border-radius:999px;font-weight:800;font-size:18px;pointer-events:none}
-  .celebration{position:absolute;top:100px;left:50%;transform:translateX(-50%);pointer-events:none;font-weight:900;font-size:22px;color:#fff;text-shadow:0 8px 18px rgba(0,0,0,0.3);padding:8px 14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));display:none;z-index:10}
-  .toast{position:absolute;left:50%;transform:translateX(-50%);bottom:28px;background:rgba(0,0,0,0.72);color:#fff;padding:10px 14px;border-radius:999px;font-weight:700;font-size:16px;display:none;z-index:11}
-  .desktop-block{display:none;position:fixed;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.75));color:#fff;z-index:9999;align-items:center;justify-content:center;text-align:center;padding:20px;font-size:18px}
-  .desktop-block .box{max-width:420px}
-  @media (hover:hover) and (pointer:fine), (min-width:800px){.desktop-block{display:flex}}
-  @media (max-width:380px){.flap-btn{padding:14px 20px;font-size:18px;bottom:14px}.celebration{font-size:18px;top:84px}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>बिहार भूमि प्रतिवेदन - जमाबंदी डेटा</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Noto Sans Devanagari', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1450px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+            padding: 25px 40px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            transform: rotate(45deg);
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: 20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title p {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .number {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .stat-item .label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* Controls */
+        .controls {
+            padding: 20px 40px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .controls-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: white;
+            font-family: inherit;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #1a237e;
+            box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #1a237e;
+        }
+
+        .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(26, 35, 126, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(27, 94, 32, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #b71c1c, #c62828);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(183, 28, 28, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #e9ecef;
+            color: #495057;
+        }
+
+        .btn-outline:hover {
+            background: #f8f9fa;
+        }
+
+        /* Table Container */
+        .table-container {
+            padding: 20px 40px 40px;
+            overflow-x: auto;
+        }
+
+        .table-wrapper {
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            font-family: 'Segoe UI', 'Noto Sans Devanagari', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            color: white;
+        }
+
+        thead th {
+            padding: 15px 18px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        thead th:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        thead th .sort-icon {
+            margin-left: 5px;
+            font-size: 11px;
+        }
+
+        thead th .sort-icon.active {
+            color: #ffd54f;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody td {
+            padding: 12px 18px;
+            color: #212529;
+            vertical-align: middle;
+            font-family: 'Segoe UI', 'Noto Sans Devanagari', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        tbody td .link-icon {
+            color: #1a237e;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        tbody td .link-icon:hover {
+            color: #0d47a1;
+            transform: translateX(3px);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+        }
+
+        .badge-blue {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .badge-green {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge-purple {
+            background: #f3e5f5;
+            color: #6a1b9a;
+        }
+
+        .badge-orange {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .badge-red {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .badge-teal {
+            background: #e0f2f1;
+            color: #00695c;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 40px 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .pagination-info {
+            color: #6c757d;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            padding: 8px 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #495057;
+            font-family: inherit;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #1a237e;
+            color: white;
+            border-color: #1a237e;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: #1a237e;
+            color: white;
+            border-color: #1a237e;
+        }
+
+        /* No Data */
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .no-data i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .no-data h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-stats {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .controls {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls-left {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .table-container {
+                padding: 10px;
+            }
+
+            .pagination {
+                flex-direction: column;
+                align-items: center;
+                padding: 15px 20px;
+            }
+
+            thead th,
+            tbody td {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .header-title h1 {
+                font-size: 20px;
+            }
+
+            .stat-item .number {
+                font-size: 18px;
+            }
+
+            .controls-right {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .btn {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-title h1 {
+                font-size: 18px;
+            }
+
+            .stat-item .number {
+                font-size: 16px;
+            }
+
+            .header-stats {
+                gap: 15px;
+                padding: 10px 15px;
+            }
+        }
+
+        /* Scrollbar */
+        .table-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #f1f3f5;
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #c3cfe2;
+            border-radius: 4px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #a8b8d0;
+        }
+
+        /* Number formatting */
+        .number-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #212529;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+            font-family: inherit;
+        }
+
+        /* Name highlight */
+        .rayat-name {
+            font-weight: 600;
+            color: #1a237e;
+            font-size: 15px;
+        }
+    </style>
 </head>
 <body>
-  <div class="screen" id="screen">
-    <canvas id="game" width="480" height="640" aria-label="Flappy bird game"></canvas>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="header-icon">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <div class="header-title">
+                        <h1>🏛️ बिहार भूमि प्रतिवेदन</h1>
+                        <p>जमाबंदी डेटा - Jamabandi Data Viewer</p>
+                    </div>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <div class="number" id="totalRecords">0</div>
+                        <div class="label">कुल रिकॉर्ड</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="number" id="totalPages">0</div>
+                        <div class="label">कुल पृष्ठ</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="number" id="displayCount">0</div>
+                        <div class="label">प्रदर्शित</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="top-ui">
-      <div class="group"><button id="startBtn" class="btn">Start</button></div>
-      <div class="group"><button id="muteBtn" class="small">Mute</button></div>
+        <!-- Controls -->
+        <div class="controls">
+            <div class="controls-left">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="🔍 किसी भी कॉलम में खोजें..." onkeyup="filterTable()">
+                </div>
+                <select class="filter-select" id="filterSelect" onchange="filterTable()">
+                    <option value="all">📋 सभी रिकॉर्ड</option>
+                    <option value="volume">📊 भाग के अनुसार</option>
+                    <option value="khata">📁 खाता संख्या</option>
+                    <option value="plot">📍 प्लाट संख्या</option>
+                    <option value="rayat">👤 रैयत के नाम से</option>
+                </select>
+                <select class="filter-select" id="rowsPerPage" onchange="changeRowsPerPage()">
+                    <option value="10">10 पंक्तियाँ</option>
+                    <option value="25">25 पंक्तियाँ</option>
+                    <option value="50" selected>50 पंक्तियाँ</option>
+                    <option value="100">100 पंक्तियाँ</option>
+                    <option value="all">सभी पंक्तियाँ</option>
+                </select>
+            </div>
+            <div class="controls-right">
+                <button class="btn btn-success" onclick="exportCSV()">
+                    <i class="fas fa-file-csv"></i> CSV डाउनलोड
+                </button>
+                <button class="btn btn-outline" onclick="resetFilters()">
+                    <i class="fas fa-undo"></i> रीसेट
+                </button>
+                <button class="btn btn-primary" onclick="printTable()">
+                    <i class="fas fa-print"></i> प्रिंट
+                </button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table id="dataTable">
+                    <thead id="tableHead">
+                        <!-- Headers will be inserted here -->
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <div class="pagination-info" id="paginationInfo">
+                Showing 0 to 0 of 0 records
+            </div>
+            <div class="pagination-controls" id="paginationControls">
+                <!-- Pagination buttons will be inserted here -->
+            </div>
+        </div>
     </div>
 
-    <div class="score-pill" id="scoreP">Score: <span id="scoreLabel">0</span></div>
+    <script>
+        // Data with शिवानन्द नायक as Rayat name - Full integers
+        const rawData = [
+            ["675", "शिवानन्द नायक", "355", "2", "456", "387", "214113500015375", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=2+++++++++&p=456&k=355&u=214113500015375"],
+            ["797", "शिवानन्द नायक", "47", "2", "536", "430", "214113500015455", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=2+++++++++&p=536&k=47&u=214113500015455"],
+            ["925", "शिवानन्द नायक", "47", "2", "619", "482", "214113500015538", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=2+++++++++&p=619&k=47&u=214113500015538"],
+            ["927", "शिवानन्द नायक", "484", "2", "622", "484", "214113500015541", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=2+++++++++&p=622&k=484&u=214113500015541"],
+            ["929", "शिवानन्द नायक", "275", "2", "624", "486", "214113500015543", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=2+++++++++&p=624&k=275&u=214113500015543"],
+            ["937", "शिवानन्द नायक", "39", "2", "630", "494", "214113500015549", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=2+++++++++&p=630&k=39&u=214113500015549"],
+            ["938", "शिवानन्द नायक", "68", "2", "631", "495", "214113500015550", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=2+++++++++&p=631&k=68&u=214113500015550"],
+            ["943", "शिवानन्द नायक", "294", "2", "633", "496", "214113500015552", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=2+++++++++&p=633&k=294&u=214113500015552"],
+            ["948", "शिवानन्द नायक", "275", "3", "638", "639", "214113500015557", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=3+++++++++&p=638&k=275&u=214113500015557"],
+            ["949", "शिवानन्द नायक", "39", "3", "639", "640", "214113500015558", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=3+++++++++&p=639&k=39&u=214113500015558"],
+            ["2293", "शिवानन्द नायक", "72", "8", "97", "493", "214113500114238", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=8&p=97&k=72&u=214113500114238"],
+            ["2294", "शिवानन्द नायक", "1", "8", "98", "480", "214113500114239", "https://emutation.bihar.gov.in/biharBhumireport/Reg2Report?d=9&c=7&s=01&h=9&m=262&v=8&p=98&k=1&u=214113500114239"]
+        ];
 
-    <button id="flapBtn" class="flap-btn" aria-label="Flap">FLAP</button>
+        // Column headers with Hindi
+        const columnHeaders = [
+            { key: 'slNo', label: 'क्र.सं.', english: 'SL No' },
+            { key: 'rayatName', label: 'रैयत का नाम', english: 'Rayat Name' },
+            { key: 'khataNo', label: 'खाता संख्या', english: 'Khata No' },
+            { key: 'volume', label: 'भाग', english: 'Volume' },
+            { key: 'plotNo', label: 'प्लाट संख्या', english: 'Plot No' },
+            { key: 'pageNo', label: 'पृष्ठ संख्या', english: 'Page No' },
+            { key: 'ujid', label: 'UJID', english: 'UJID' },
+            { key: 'link', label: 'कार्रवाई', english: 'Action' }
+        ];
 
-    <div id="celebration" class="celebration">😍 happy bdy muskan 😍</div>
-    <div id="toast" class="toast">Score 3 — happy bdy muskan</div>
+        // State
+        let currentPage = 1;
+        let rowsPerPage = 50;
+        let filteredData = [...rawData];
+        let sortColumn = null;
+        let sortDirection = 'asc';
 
-    <div class="desktop-block" id="desktopBlock" role="dialog" aria-modal="true" aria-label="Mobile only">
-      <div class="box">
-        <h2>Mobile only</h2>
-        <p>This game is optimized for phones (touch). Please open this page on your mobile device to play.</p>
-        <p><small>Tip: serve the files from a local server (e.g. <code>python -m http.server</code>) and open the server address from your phone.</small></p>
-        <button onclick="document.getElementById('desktopBlock').style.display='none'">Continue anyway</button>
-      </div>
-    </div>
-  </div>
-
-<script>
-(() => {
-  // ===== CONFIG: local asset paths (edit if necessary) =====
-  const DEFAULT_BIRD_PATH  = "assets/qw.png";   // change as needed
-  const DEFAULT_MUSIC_PATH = "assets/dd.mp3";   // change as needed
-
-  // ===== GAME SETTINGS =====
-  const W = 480, H = 640;
-  const GRAV = 0.5, FLAP = -9, PIPE_SPEED = 2.6, PIPE_WIDTH = 78, PIPE_GAP = 150;
-  const PIPE_INTERVAL = 1500, BIRD_R = 16;
-  const CELEB_TEXT = "😍 happy bdy muskan 😍", CELEB_DURATION = 2400;
-  const TOAST_DURATION = 2200;
-
-  // ===== TARGET REDIRECT URL =====
-  const REDIRECT_URL = "https://himraj123456789.github.io/pic_sdfs/";
-
-  // ===== DOM & canvas scaling for DPR =====
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
-  const flapBtn = document.getElementById('flapBtn');
-  const startBtn = document.getElementById('startBtn');
-  const muteBtn  = document.getElementById('muteBtn');
-  const scoreLabel = document.getElementById('scoreLabel');
-  const celebrationEl = document.getElementById('celebration');
-  const toastEl = document.getElementById('toast');
-  const desktopBlock = document.getElementById('desktopBlock');
-
-  function scaleCanvasForDPR() {
-    const dpr = Math.max(1, window.devicePixelRatio || 1);
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    canvas.style.width = Math.min(480, Math.round(window.innerWidth * 0.96)) + "px";
-    canvas.style.height = (parseFloat(canvas.style.width) * (H / W)) + "px";
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
-  scaleCanvasForDPR();
-  window.addEventListener('resize', () => { scaleCanvasForDPR(); });
-
-  // ===== game state =====
-  let last = 0, spawn = 0, pipes = [], score = 0, showCeleb = false, celebTimer = 0;
-  let muted = false, celebratedAt3 = false, userInteracted = false;
-  let birdAsset = null, birdScale = 1, useAsset = false;
-  const bird = { x: 100, y: H/2, vy: 0, r: BIRD_R, alive: true };
-
-  // ===== utilities =====
-  const randInt = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
-  function reset(){
-    pipes = []; score = 0; scoreLabel.textContent = score; bird.y = H/2; bird.vy = 0; bird.alive = true;
-    spawn = 0; showCeleb = false; celebTimer = 0; celebratedAt3 = false; last = performance.now();
-    celebrationEl.style.display = "none"; toastEl.style.display = "none";
-  }
-
-  class Pipe {
-    constructor(x){ this.x = x; this.w = PIPE_WIDTH; const m = 60; this.gapY = randInt(m+PIPE_GAP/2, H-m-PIPE_GAP/2); this.passed = false; }
-    update(dt){ this.x -= PIPE_SPEED * (dt / (1000/60)); }
-    draw(ctx){
-      ctx.fillStyle = "#2ea34a";
-      ctx.fillRect(this.x, 0, this.w, this.gapY - PIPE_GAP/2);
-      ctx.fillRect(this.x, this.gapY + PIPE_GAP/2, this.w, H - (this.gapY + PIPE_GAP/2) - 80);
-      ctx.fillStyle = "rgba(0,0,0,0.06)";
-      ctx.fillRect(this.x, this.gapY - 6 - PIPE_GAP/2, this.w, 6);
-    }
-    isOff(){ return this.x + this.w < 0; }
-    collides(b){
-      const bx = b.x, by = b.y, r = b.r;
-      const top = {x:this.x, y:0, w:this.w, h:this.gapY - PIPE_GAP/2};
-      const bottom = {x:this.x, y:this.gapY + PIPE_GAP/2, w:this.w, h:H - (this.gapY + PIPE_GAP/2) - 80};
-      return circRect(bx,by,r,top) || circRect(bx,by,r,bottom);
-    }
-  }
-  function circRect(cx,cy,r,rect){ const nx = Math.max(rect.x, Math.min(cx, rect.x + rect.w)); const ny = Math.max(rect.y, Math.min(cy, rect.y + rect.h)); const dx = cx - nx, dy = cy - ny; return (dx*dx + dy*dy) < (r*r); }
-
-  // ===== detect mobile (touch) =====
-  const isMobile = (() => {
-    const ua = navigator.userAgent || "";
-    const touch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
-    const smallScreen = Math.min(window.innerWidth, window.innerHeight) <= 900;
-    const mobileUA = /Mobi|Android|iPhone|iPad|iPod|Silk|Mobile/i.test(ua);
-    return touch && smallScreen && mobileUA;
-  })();
-  if(!isMobile) desktopBlock.style.display = "flex"; else desktopBlock.style.display = "none";
-
-  // ===== input & audio unlock for mobile =====
-  function onUserGesture(){
-    if(!userInteracted){
-      userInteracted = true;
-      if(bgAudio && bgAudio.src && !muted) bgAudio.play().catch(()=>{});
-    }
-  }
-
-  function flapAction(){
-    onUserGesture();
-    if(!bird.alive){ reset(); return; }
-    bird.vy = FLAP;
-    playClick();
-  }
-
-  // pointer/touch handlers
-  canvas.addEventListener('pointerdown', (e) => { flapAction(); }, {passive:true});
-  flapBtn.addEventListener('touchstart', (e) => { e.preventDefault(); flapAction(); }, {passive:false});
-  flapBtn.addEventListener('mousedown', (e) => { e.preventDefault(); flapAction(); }, {passive:false});
-
-  startBtn.addEventListener('touchstart', (e) => { e.preventDefault(); onUserGesture(); reset(); }, {passive:false});
-  startBtn.addEventListener('mousedown', (e) => { e.preventDefault(); onUserGesture(); reset(); }, {passive:false});
-  muteBtn.addEventListener('touchstart', (e) => { e.preventDefault(); muted = !muted; muteBtn.textContent = muted ? "Unmute" : "Mute"; if(muted) bgAudio && bgAudio.pause(); else if(userInteracted) bgAudio && bgAudio.play().catch(()=>{}); }, {passive:false});
-  muteBtn.addEventListener('mousedown', (e) => { e.preventDefault(); muted = !muted; muteBtn.textContent = muted ? "Unmute" : "Mute"; if(muted) bgAudio && bgAudio.pause(); else if(userInteracted) bgAudio && bgAudio.play().catch(()=>{}); }, {passive:false});
-
-  function playClick(){ if(muted) return; try{ const Actx = window.AudioContext || window.webkitAudioContext; if(!Actx) return; const a = new Actx(); const o = a.createOscillator(), g = a.createGain(); o.type = "sine"; o.frequency.value = 1200; g.gain.value = 0.02; o.connect(g); g.connect(a.destination); const now = a.currentTime; g.gain.setValueAtTime(0.02, now); g.gain.exponentialRampToValueAtTime(0.0001, now + 0.06); o.start(now); o.stop(now + 0.07);} catch(e){} }
-
-  // ===== audio element for bg music (local path) =====
-  const bgAudio = document.createElement('audio');
-  bgAudio.loop = true; bgAudio.preload = "auto"; bgAudio.style.display = "none"; document.body.appendChild(bgAudio);
-  bgAudio.addEventListener('error', () => { console.warn("Background audio failed to load from DEFAULT_MUSIC_PATH — check the path or server."); });
-
-  // ===== local asset loaders (bird & music) =====
-  function tryLoadLocalBird(){
-    if(!DEFAULT_BIRD_PATH) return;
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => { birdAsset = img; useAsset = true; birdScale = (BIRD_R * 2.2) / Math.max(img.width, img.height); console.log("Loaded bird asset from", DEFAULT_BIRD_PATH); };
-    img.onerror = (ev) => { useAsset = false; console.warn("Could not load bird from path:", DEFAULT_BIRD_PATH, ev); };
-    img.src = DEFAULT_BIRD_PATH + (DEFAULT_BIRD_PATH.indexOf('?') === -1 ? ('?cb=' + Date.now()) : '');
-  }
-  function tryLoadLocalMusic(){ if(!DEFAULT_MUSIC_PATH) return; bgAudio.src = DEFAULT_MUSIC_PATH; bgAudio.load(); bgAudio.addEventListener('canplay', ()=>{ console.log("Background music loaded from", DEFAULT_MUSIC_PATH); }, {once:true}); }
-
-  tryLoadLocalBird(); tryLoadLocalMusic();
-
-  // ===== drawing helpers =====
-  function drawGround(){ ctx.fillStyle = "#d3a35a"; ctx.fillRect(0, H-80, W, 80); }
-  function drawBird(){ if(useAsset && birdAsset){ const w = birdAsset.width * birdScale, h = birdAsset.height * birdScale; ctx.drawImage(birdAsset, bird.x - w/2, bird.y - h/2, w, h); } else { ctx.beginPath(); ctx.fillStyle="#ffcc33"; ctx.arc(bird.x, bird.y, bird.r,0,Math.PI*2); ctx.fill(); ctx.fillStyle="#333"; ctx.beginPath(); ctx.arc(bird.x+6, bird.y-4, 3,0,Math.PI*2); ctx.fill(); } }
-  function drawScore(){ ctx.fillStyle="#fff"; ctx.font="700 36px system-ui,Arial"; ctx.textAlign="center"; ctx.fillText(String(score), W/2, 68); }
-
-  // show/hide DOM celebration element and toast
-  function updateCelebrationVisibility(){
-    if(showCeleb){
-      celebrationEl.style.display = "block";
-      toastEl.style.display = "block";
-      // play a short celebratory beep
-      if(!muted){
-        try{
-          const Actx = window.AudioContext || window.webkitAudioContext;
-          if(Actx){
-            const a = new Actx();
-            const o = a.createOscillator();
-            const g = a.createGain();
-            o.type = 'triangle'; o.frequency.value = 880; g.gain.value = 0.06;
-            o.connect(g); g.connect(a.destination);
-            const now = a.currentTime;
-            g.gain.setValueAtTime(0.06, now);
-            g.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
-            o.start(now); o.stop(now + 0.28);
-          }
-        }catch(e){}
-      }
-      // auto-hide toast after TOAST_DURATION
-      setTimeout(()=>{ toastEl.style.display = "none"; }, TOAST_DURATION);
-    } else {
-      celebrationEl.style.display = "none";
-      toastEl.style.display = "none";
-    }
-  }
-
-  // ===== game loop =====
-  function update(now){
-    const dt = now - last; last = now;
-    if(bird.alive){
-      bird.vy += GRAV; bird.y += bird.vy;
-      if(bird.y + bird.r >= H - 80){ bird.y = H - 80 - bird.r; bird.alive = false; }
-      if(bird.y - bird.r <= 0){ bird.y = bird.r; bird.vy = 0; }
-
-      spawn += dt;
-      if(spawn >= PIPE_INTERVAL){ spawn = 0; pipes.push(new Pipe(W + 10)); }
-
-      for(const p of pipes){
-        p.update(dt);
-        if(!p.passed && (p.x + p.w) < bird.x){
-          p.passed = true;
-          score++;
-          scoreLabel.textContent = score;
-          // Trigger celebration exactly when score becomes 3 (only once)
-          if(score === 3 && !celebratedAt3){
-            celebratedAt3 = true;
-            showCeleb = true;
-            celebTimer = CELEB_DURATION;
-            console.log(CELEB_TEXT);
-            onUserGesture(); // unlock audio
-            updateCelebrationVisibility();
-
-            // redirect to the requested URL after a short delay (700ms)
-            setTimeout(() => {
-              try {
-                window.location.href = REDIRECT_URL;
-              } catch(e) {
-                console.warn("Redirect failed:", e);
-              }
-            }, 700);
-          }
+        // Format number with commas
+        function formatNumber(num) {
+            if (num === null || num === undefined || num === '') return '';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
-        if(p.collides(bird)){ bird.alive = false; }
-      }
 
-      pipes = pipes.filter(p => !p.isOff());
-      if(showCeleb){
-        celebTimer -= dt;
-        if(celebTimer <= 0){ showCeleb = false; updateCelebrationVisibility(); celebTimer = 0; }
-      }
-    }
+        // Format UJID number
+        function formatUJID(ujid) {
+            if (!ujid) return '';
+            return ujid.toString();
+        }
 
-    render();
-    requestAnimationFrame(update);
-  }
+        // Initialize
+        function init() {
+            renderTable();
+            updateStats();
+        }
 
-  function render(){
-    ctx.clearRect(0,0,W,H);
-    const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,"#9ee0e7"); g.addColorStop(1,"#70c5ce");
-    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-    for(const p of pipes) p.draw(ctx);
-    drawGround(); drawBird(); drawScore();
-    if(!bird.alive){
-      ctx.fillStyle="rgba(0,0,0,0.45)"; ctx.fillRect(0,0,W,H);
-      ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="700 36px system-ui,Arial";
-      ctx.fillText("Game Over", W/2, H/2 - 6);
-      ctx.font="500 18px system-ui,Arial"; ctx.fillText("Tap Start to restart", W/2, H/2 + 28);
-    } else if(pipes.length === 0 && Math.abs(bird.y - H/2) < 40 && bird.vy === 0){
-      ctx.fillStyle="rgba(0,0,0,0.35)"; ctx.fillRect(0,0,W,H);
-      ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="700 28px system-ui,Arial";
-      ctx.fillText("Tap / FLAP to play", W/2, H/2 - 10);
-      ctx.font="500 16px system-ui,Arial"; ctx.fillText("Music starts on first tap", W/2, H/2 + 20);
-    }
-  }
+        // Render table
+        function renderTable() {
+            const start = (currentPage - 1) * (rowsPerPage === 'all' ? filteredData.length : rowsPerPage);
+            const end = rowsPerPage === 'all' ? filteredData.length : Math.min(start + parseInt(rowsPerPage), filteredData.length);
+            const pageData = filteredData.slice(start, end);
 
-  // start
-  reset(); last = performance.now(); requestAnimationFrame(update);
+            // Render headers
+            const thead = document.getElementById('tableHead');
+            thead.innerHTML = `
+                <tr>
+                    ${columnHeaders.map((col, index) => `
+                        <th onclick="sortTable(${index})" title="${col.english}">
+                            ${col.label}
+                            <span class="sort-icon ${sortColumn === index ? 'active' : ''}">
+                                ${sortColumn === index ? (sortDirection === 'asc' ? '▲' : '▼') : '⇅'}
+                            </span>
+                        </th>
+                    `).join('')}
+                </tr>
+            `;
 
-  // expose API
-  window.__flappy = {
-    setBirdFromPath(path){ const img = new Image(); img.crossOrigin='anonymous'; img.onload = ()=>{ birdAsset = img; useAsset = true; birdScale = (BIRD_R*2.2)/Math.max(img.width,img.height); }; img.onerror = ()=>{ console.warn('Failed to load bird from', path); }; img.src = path; },
-    setMusicFromPath(path){ bgAudio.src = path; bgAudio.load(); if(userInteracted && !muted) bgAudio.play().catch(()=>{}); }
-  };
+            // Render body
+            const tbody = document.getElementById('tableBody');
+            if (pageData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${columnHeaders.length}" class="no-data">
+                            <i class="fas fa-search"></i>
+                            <h3>कोई रिकॉर्ड नहीं मिला</h3>
+                            <p>कृपया अपनी खोज को समायोजित करें</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = pageData.map((row, rowIndex) => {
+                    const actualIndex = start + rowIndex + 1;
+                    return `
+                        <tr>
+                            ${row.map((cell, index) => {
+                                if (index === 6) {
+                                    // UJID column - show full integer with formatting
+                                    return `<td class="number-cell"><span class="badge badge-purple">${formatUJID(cell)}</span></td>`;
+                                } else if (index === 7) {
+                                    // Link column
+                                    return `<td><a href="${cell}" target="_blank" class="link-icon" data-tooltip="रिपोर्ट देखें">
+                                        <i class="fas fa-external-link-alt"></i> देखें
+                                    </a></td>`;
+                                } else if (index === 0) {
+                                    // SL No
+                                    return `<td><span class="badge badge-blue">${actualIndex}</span></td>`;
+                                } else if (index === 1) {
+                                    // Rayat Name - Highlighted
+                                    return `<td class="rayat-name"><i class="fas fa-user" style="color: #1a237e; margin-right: 8px;"></i>${cell}</td>`;
+                                } else if (index === 2 || index === 4 || index === 5) {
+                                    // Number columns (khata, plot, page)
+                                    return `<td class="number-cell"><span class="badge ${index === 2 ? 'badge-orange' : 'badge-blue'}">${formatNumber(cell)}</span></td>`;
+                                } else if (index === 3) {
+                                    // Volume
+                                    return `<td><span class="badge ${cell === '2' ? 'badge-green' : cell === '3' ? 'badge-teal' : 'badge-red'}">${cell}</span></td>`;
+                                } else {
+                                    return `<td>${cell}</td>`;
+                                }
+                            }).join('')}
+                        </tr>
+                    `;
+                }).join('');
+            }
 
-  // accessibility & prevent scroll while interacting
-  canvas.setAttribute('tabindex','0');
-  canvas.addEventListener('touchstart', e => { e.preventDefault(); }, {passive:false});
-})();
-</script>
+            updatePagination();
+            updateStats();
+        }
+
+        // Update pagination
+        function updatePagination() {
+            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredData.length / parseInt(rowsPerPage));
+            const start = (currentPage - 1) * (rowsPerPage === 'all' ? filteredData.length : parseInt(rowsPerPage)) + 1;
+            const end = Math.min(start + (rowsPerPage === 'all' ? filteredData.length : parseInt(rowsPerPage)) - 1, filteredData.length);
+
+            document.getElementById('paginationInfo').textContent = 
+                `दिखा रहा है ${filteredData.length === 0 ? 0 : start} से ${filteredData.length === 0 ? 0 : end} तक कुल ${filteredData.length} रिकॉर्ड`;
+
+            const controls = document.getElementById('paginationControls');
+            if (totalPages <= 1) {
+                controls.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button class="pagination-btn" onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}>
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                <button class="pagination-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                    <i class="fas fa-angle-left"></i>
+                </button>
+            `;
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+
+            if (startPage > 1) {
+                html += `<button class="pagination-btn" onclick="goToPage(1)">1</button>`;
+                if (startPage > 2) html += `<button class="pagination-btn" disabled>...</button>`;
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += `<button class="pagination-btn" disabled>...</button>`;
+                html += `<button class="pagination-btn" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            html += `
+                <button class="pagination-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                <button class="pagination-btn" onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    <i class="fas fa-angle-double-right"></i>
+                </button>
+            `;
+
+            controls.innerHTML = html;
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('totalRecords').textContent = formatNumber(rawData.length);
+            document.getElementById('totalPages').textContent = rowsPerPage === 'all' ? 1 : Math.ceil(filteredData.length / parseInt(rowsPerPage));
+            document.getElementById('displayCount').textContent = formatNumber(filteredData.length);
+        }
+
+        // Filter table
+        function filterTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filterType = document.getElementById('filterSelect').value;
+
+            filteredData = rawData.filter(row => {
+                // Search filter - check all columns including Hindi text
+                let matchesSearch = true;
+                if (searchTerm) {
+                    matchesSearch = row.some(cell => 
+                        cell.toString().toLowerCase().includes(searchTerm)
+                    );
+                }
+                if (!matchesSearch) return false;
+
+                // Column filter
+                if (filterType === 'volume') {
+                    return row[3] === '2' || row[3] === '3' || row[3] === '8';
+                } else if (filterType === 'khata') {
+                    return parseInt(row[2]) > 50;
+                } else if (filterType === 'plot') {
+                    return parseInt(row[4]) > 500;
+                } else if (filterType === 'rayat') {
+                    return row[1].toLowerCase().includes('शिवानन्द') || row[1].toLowerCase().includes('shivanand');
+                }
+                return true;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        // Sort table
+        function sortTable(columnIndex) {
+            if (sortColumn === columnIndex) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = columnIndex;
+                sortDirection = 'asc';
+            }
+
+            filteredData.sort((a, b) => {
+                let valA = a[columnIndex];
+                let valB = b[columnIndex];
+
+                // Handle numeric values
+                if (!isNaN(valA) && !isNaN(valB)) {
+                    valA = parseFloat(valA);
+                    valB = parseFloat(valB);
+                }
+
+                if (typeof valA === 'string' && typeof valB === 'string') {
+                    return sortDirection === 'asc' ? valA.localeCompare(valB, 'hi') : valB.localeCompare(valA, 'hi');
+                }
+
+                if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
+                if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            renderTable();
+        }
+
+        // Go to page
+        function goToPage(page) {
+            const totalPages = rowsPerPage === 'all' ? 1 : Math.ceil(filteredData.length / parseInt(rowsPerPage));
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+        }
+
+        // Change rows per page
+        function changeRowsPerPage() {
+            rowsPerPage = document.getElementById('rowsPerPage').value;
+            currentPage = 1;
+            renderTable();
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterSelect').value = 'all';
+            filteredData = [...rawData];
+            sortColumn = null;
+            sortDirection = 'asc';
+            currentPage = 1;
+            renderTable();
+        }
+
+        // Print table
+        function printTable() {
+            window.print();
+        }
+
+        // Export CSV with full integers and Hindi text
+        function exportCSV() {
+            if (filteredData.length === 0) {
+                alert('कोई डेटा नहीं है!');
+                return;
+            }
+
+            const headers = columnHeaders.map(col => col.english);
+            const BOM = '\uFEFF';
+            
+            let csvContent = BOM + headers.join(',') + '\n';
+            
+            filteredData.forEach(row => {
+                const rowData = row.slice(0, 7);
+                const escapedRow = rowData.map(cell => {
+                    if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
+                        return `"${cell.replace(/"/g, '""')}"`;
+                    }
+                    return cell;
+                });
+                csvContent += escapedRow.join(',') + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `jamabandi_data_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>
